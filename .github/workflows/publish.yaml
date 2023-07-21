@@ -21,7 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          ref: feature/github-package-integration
           repository: mudita/kaps
+          ssh-key: ${{ secrets.SECRET_READ_ACCESS_TOKEN }}
 
       - name: Cache - Gradle packages
         timeout-minutes: 10
