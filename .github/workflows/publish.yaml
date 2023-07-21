@@ -1,0 +1,47 @@
+name: Publish new version to GitHub Packages
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+  release:
+    types: [ created ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: mudita/kaps
+
+      - name: Cache - Gradle packages
+        timeout-minutes: 10
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('buildSrc/src/main/kotlin/**') }}
+          restore-keys: ${{ runner.os }}-gradle-cache-
+
+      - name: Cache - Gradle local cache
+        timeout-minutes: 5
+        uses: actions/cache@v2
+        with:
+          path: .gradle/
+          key: ${{ runner.os }}-gradle-local-cache-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-local-cache-
+
+      - name: Publish to github maven
+        timeout-minutes: 10
+        run: ./gradlew publish
+        env:
+          GITHUB_USER: ${{ secrets.CURRENT_GITHUB_USER }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
