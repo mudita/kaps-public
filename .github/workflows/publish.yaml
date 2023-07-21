@@ -22,6 +22,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: mudita/kaps
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache - Gradle packages
         timeout-minutes: 10
